@@ -1,0 +1,107 @@
+# https://cpp-linter.github.io/cpp-linter-action/
+
+name: CI
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+on:
+    push:
+        branches:
+            - 'main'
+            - 'develop'
+    pull_request:
+        branches-ignore:
+            - '*Test*'
+
+jobs:
+    Build:
+        runs-on: ubuntu-latest
+        env:
+            GH_PAT: ${{ secrets.PMW_CI_PAT }}
+            GH_USER_NAME: vacmg
+
+        steps:
+            -   name: "Import GitHub credentials" # ~/.gitconfig
+                run: |
+                    git config --global --replace-all "url.https://$GH_USER_NAME:$GH_PAT@github.com/.insteadOf" ssh://git@github.com:
+                    git config --global --add "url.https://$GH_USER_NAME:$GH_PAT@github.com/.insteadOf" git@github.com:
+                    git config --global --add "url.https://$GH_USER_NAME:$GH_PAT@github.com/.insteadOf" https://github.com/
+
+            -   name: Cat GitHub credentials
+                run: cat ~/.gitconfig
+
+            -   name: "Checkout repository"
+                uses: actions/checkout@v4
+
+            -   name: Cache Build Environment
+                id: CacheBuildEnvironment
+                uses: actions/cache@v4
+                with:
+                    key: "${{ runner.os }}-${{ hashFiles('Source/**', 'Tests/**') }}-build"
+                    path: 'build'
+
+            -   name: Configure CMake
+                if: steps.CacheBuildEnvironment.outputs.cache-hit == '' # If the cache was not restored
+                run: mkdir build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_C_FLAGS=--coverage -S . -B ./build
+
+            -   name: Build Project
+                if: steps.CacheBuildEnvironment.outputs.cache-hit == '' # If the cache was not restored
+                run: cmake --build ./build --target CANInterface
+
+            -   name: Build Tests & Dependencies
+                if: steps.CacheBuildEnvironment.outputs.cache-hit == '' # If the cache was not restored
+                run: cmake --build ./build
+
+    Linter:
+        runs-on: ubuntu-latest
+        needs: Build
+        env:
+            GH_PAT: ${{ secrets.PMW_CI_PAT }}
+            GH_USER_NAME: vacmg
+
+        permissions:
+            contents: write
+            pull-requests: write
+
+        steps:
+            -   name: "Import GitHub credentials" # ~/.gitconfig
+                run: |
+                    git config --global --replace-all "url.https://$GH_USER_NAME:$GH_PAT@github.com/.insteadOf" ssh://git@github.com:
+                    git config --global --add "url.https://$GH_USER_NAME:$GH_PAT@github.com/.insteadOf" git@github.com:
+                    git config --global --add "url.https://$GH_USER_NAME:$GH_PAT@github.com/.insteadOf" https://github.com/
+
+            -   name: "Checkout repository"
+                uses: actions/checkout@v4
+
+            -   name: Configure CMake
+                working-directory: ${{ runner.workspace }}
+                run: mkdir build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_C_FLAGS=--coverage -S $GITHUB_WORKSPACE -B ./build
+
+            -   name: Linter
+                uses: cpp-linter/cpp-linter-action@v2
+                id: linter
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                with:
+                    version: 19
+                    ignore: 'Tests/'
+                    style: 'file'  # Use .clang-format config file
+                    tidy-checks: '' # Use .clang-tidy config file
+                    database: '${{ runner.workspace }}/build'
+                    step-summary: true
+                    tidy-review: true
+                    format-review: true
+                    lines-changed-only: false # Only Check the lines that have changed
+                    files-changed-only: true # Only check the files that have changed
+                    # only 'update' a single comment in a pull request thread.
+                    thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+
+            -   name: Clang Tidy Fail Check
+                if: steps.linter.outputs.clang-tidy-checks-failed > 0
+                run: exit 1 # To enable or disable this check as an error, run exit 1 / exit 0.
+
+            -   name: Clang Format Fail Check
+                if: steps.linter.outputs.clang-format-checks-failed > 0
+                run: exit 1 # To enable or disable this check as an error, run exit 1 / exit 0.
