@@ -3,15 +3,16 @@
 
 #include <cstdint>
 
-constexpr uint8_t  CAN_FRAME_MAX_DLC = 8;
-constexpr uint32_t MAX_N_AI_STR_SIZE =
-    72; // 72 = 40 (N_TAtype) + 3 (N_SA) + 3 (N_TA) + 25 (for the format string) + 1 (for the null terminator)
-constexpr uint32_t MAX_FRAME_STR_SIZE =
-    181; // 181 = 72 (N_AI) + 5 (flags) + 1 (data_length_code) + 17 (data) + 85 (format string) + 1 (null terminator)
+constexpr uint8_t CAN_FRAME_MAX_DLC = 8;
+constexpr uint32_t MAX_N_AI_STR_SIZE = 72;
+// 72 = 40 (N_TAtype) + 3 (N_SA) + 3 (N_TA) + 25 (for the format string) + 1 (for the null terminator)
+constexpr uint32_t MAX_FRAME_STR_SIZE = 181;
+// 181 = 72 (N_AI) + 5 (flags) + 1 (data_length_code) + 17 (data) + 85 (format string) + 1 (null terminator)
 
-using N_TAtype_t = enum N_TAtype {
-    CAN_UNKNOWN                             = 0,
-    N_TATYPE_5_CAN_CLASSIC_29bit_Physical   = 218,
+using N_TAtype_t = enum N_TAtype
+{
+    CAN_UNKNOWN = 0,
+    N_TATYPE_5_CAN_CLASSIC_29bit_Physical = 218,
     N_TATYPE_6_CAN_CLASSIC_29bit_Functional = 219
 };
 
@@ -24,11 +25,12 @@ using N_AI = union N_AI_union
 {
     struct __attribute__((packed))
     {
-        uint8_t : 3, N_NFA_Header : 3 {N_NFA_Header_Value}, N_NFA_Padding : 2 {N_NFA_Padding_Value};
-        N_TAtype_t N_TAtype : 8 {CAN_UNKNOWN};
-        uint8_t    N_TA{0};
-        uint8_t    N_SA{0};
+        uint8_t : 3, N_NFA_Header: 3 {N_NFA_Header_Value}, N_NFA_Padding: 2 {N_NFA_Padding_Value};
+        N_TAtype_t N_TAtype: 8 {CAN_UNKNOWN};
+        uint8_t N_TA{0};
+        uint8_t N_SA{0};
     };
+
     uint32_t N_AI;
 };
 
@@ -38,18 +40,20 @@ using CANFrame = struct CANFrame
     {
         struct __attribute__((packed))
         {
-            uint32_t extd : 1;         /**< Extended Frame Format (29bit ID) */
-            uint32_t rtr : 1;          /**< Message is a Remote Frame */
-            uint32_t ss : 1;           /**< Transmit as a Single Shot Transmission. Unused for received. */
-            uint32_t self : 1;         /**< Transmit as a Self Reception Request. Unused for received. */
-            uint32_t dlc_non_comp : 1; /**< Message's Data length code is larger than 8. This will break compliance with
+            uint32_t extd: 1; /**< Extended Frame Format (29bit ID) */
+            uint32_t rtr: 1; /**< Message is a Remote Frame */
+            uint32_t ss: 1; /**< Transmit as a Single Shot Transmission. Unused for received. */
+            uint32_t self: 1; /**< Transmit as a Self Reception Request. Unused for received. */
+            uint32_t dlc_non_comp: 1; /**< Message's Data length code is larger than 8. This will break compliance with
                                           ISO 11898-1 */
-            uint32_t reserved : 27;    /**< Reserved bits */
+            uint32_t reserved: 27; /**< Reserved bits */
         };
+
         uint32_t flags{}; /**< Deprecated: Alternate way to set bits using message flags */
     };
-    N_AI    identifier;                /**< 11 or 29 bit identifier */
-    uint8_t data_length_code{};        /**< Data length code */
+
+    N_AI identifier; /**< 11 or 29 bit identifier */
+    uint8_t data_length_code{}; /**< Data length code */
     uint8_t data[CAN_FRAME_MAX_DLC]{}; /**< Data bytes (not relevant in RTR frame) */
 };
 

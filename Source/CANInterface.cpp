@@ -21,7 +21,7 @@ const char* N_TAtypeToString(const N_TAtype_t nTAtype)
 const char* nAiToString(const N_AI& nAi)
 {
     static char buffer[MAX_N_AI_STR_SIZE]; // 72 = 40 (N_TAtype) + 3 (N_SA) + 3 (N_TA) + 25 (for the format string) + 1
-                                           // (for the null terminator)
+    // (for the null terminator)
 
     snprintf(buffer, sizeof(buffer), "{N_SA=%" PRIu8 ", N_TA=%" PRIu8 ", N_TAtype=%s}", nAi.N_SA, nAi.N_TA,
              N_TAtypeToString(nAi.N_TAtype));
@@ -36,7 +36,7 @@ const char* frameDataToString(const uint8_t* data, const uint8_t data_length_cod
      * null byte.
      */
     static char output[(CAN_FRAME_MAX_DLC * 2) + 1];
-    const char  size = MIN(data_length_code, CAN_FRAME_MAX_DLC);
+    const char size = MIN(data_length_code, CAN_FRAME_MAX_DLC);
 
     char* ptr = &output[0];
 
@@ -51,12 +51,13 @@ const char* frameDataToString(const uint8_t* data, const uint8_t data_length_cod
 const char* frameToString(const CANFrame& frame)
 {
     static char buffer[MAX_FRAME_STR_SIZE]; // 181 = 72 (N_AI) + 5 (flags) + 1 (data_length_code) + 17 (data) + 85
-                                            // (format string) + 1 (null terminator)
+    // (format string) + 1 (null terminator)
 
     snprintf(buffer, sizeof(buffer),
-             "{N_AI=%s, flags={extd=%" PRIu8 ", rtr=%" PRIu8 ", ss=%" PRIu8 ", self=%" PRIu8 ", dlc_non_comp=%" PRIu8 "}, data_length_code=%" PRIu8 ", data=[0x%s]}",
-             nAiToString(frame.identifier), frame.extd, frame.rtr, frame.ss, frame.self, frame.dlc_non_comp,
-             frame.data_length_code, frameDataToString(frame.data, frame.data_length_code));
+             "{N_AI=%s, flags={extd=%" PRIu8 ", rtr=%" PRIu8 ", ss=%" PRIu8 ", self=%" PRIu8 ", dlc_non_comp=%" PRIu8
+             "}, data_length_code=%" PRIu8 ", data=[0x%s]}", nAiToString(frame.identifier), frame.extd, frame.rtr,
+             frame.ss, frame.self, frame.dlc_non_comp, frame.data_length_code,
+             frameDataToString(frame.data, frame.data_length_code));
 
     return buffer;
 }
