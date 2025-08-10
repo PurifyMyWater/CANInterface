@@ -1,7 +1,7 @@
 #include "CANInterface.h"
 
-#include <cstdio>
 #include <cinttypes>
+#include <cstdio>
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -36,7 +36,7 @@ const char* frameDataToString(const uint8_t* data, const uint8_t data_length_cod
      * null byte.
      */
     static char output[(CAN_FRAME_MAX_DLC * 2) + 1];
-    const char size = MIN(data_length_code, CAN_FRAME_MAX_DLC);
+    const char  size = MIN(data_length_code, CAN_FRAME_MAX_DLC);
 
     char* ptr = &output[0];
 
@@ -55,9 +55,9 @@ const char* frameToString(const CANFrame& frame)
 
     snprintf(buffer, sizeof(buffer),
              "{N_AI=%s, flags={extd=%" PRIu8 ", rtr=%" PRIu8 ", ss=%" PRIu8 ", self=%" PRIu8 ", dlc_non_comp=%" PRIu8
-             "}, data_length_code=%" PRIu8 ", data=[0x%s]}", nAiToString(frame.identifier), frame.extd, frame.rtr,
-             frame.ss, frame.self, frame.dlc_non_comp, frame.data_length_code,
-             frameDataToString(frame.data, frame.data_length_code));
+             "}, data_length_code=%" PRIu8 ", data=[0x%s]}",
+             nAiToString(frame.identifier), frame.extd, frame.rtr, frame.ss, frame.self, frame.dlc_non_comp,
+             frame.data_length_code, frameDataToString(frame.data, frame.data_length_code));
 
     return buffer;
 }
