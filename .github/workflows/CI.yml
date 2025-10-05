@@ -112,7 +112,7 @@ jobs:
         needs:
             - Build
             - Linter
-        if: always() && !cancelled()
+        if: always()
         steps:
             -   name: Check job statuses
                 if: contains(needs.*.result, 'failure')
