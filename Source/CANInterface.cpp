@@ -54,10 +54,10 @@ const char* frameToString(const CANFrame& frame)
     // (format string) + 1 (null terminator)
 
     snprintf(buffer, sizeof(buffer),
-             "{N_AI=%s, flags={extd=%" PRIu8 ", rtr=%" PRIu8 ", ss=%" PRIu8 ", self=%" PRIu8 ", dlc_non_comp=%" PRIu8
-             "}, data_length_code=%" PRIu8 ", data=[0x%s]}",
-             nAiToString(frame.identifier), frame.extd, frame.rtr, frame.ss, frame.self, frame.dlc_non_comp,
-             frame.data_length_code, frameDataToString(frame.data, frame.data_length_code));
+             "{N_AI=%s, flags={ide=%" PRIu8 ", rtr=%" PRIu8 ", fdf=%" PRIu8 ", brs=%" PRIu8 ", esi=%" PRIu8
+             "}, dlc=%" PRIu16 ", timestamp=%" PRIu64 ", data=[0x%s]}",
+             nAiToString(frame.id), frame.ide, frame.rtr, frame.fdf, frame.brs, frame.esi, frame.dlc, frame.timestamp,
+             frameDataToString(frame.data, frame.dlc));
 
     return buffer;
 }

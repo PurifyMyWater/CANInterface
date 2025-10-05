@@ -35,24 +35,23 @@ using N_AI = union N_AI_union
 
 using CANFrame = struct CANFrame
 {
-    union
+    N_AI     id;  /**< message arbitration identification */
+    uint16_t dlc; /**< message data length code */
+    struct __attribute__((packed))
     {
-        struct __attribute__((packed))
-        {
-            uint32_t extd : 1;         /**< Extended Frame Format (29bit ID) */
-            uint32_t rtr : 1;          /**< Message is a Remote Frame */
-            uint32_t ss : 1;           /**< Transmit as a Single Shot Transmission. Unused for received. */
-            uint32_t self : 1;         /**< Transmit as a Self Reception Request. Unused for received. */
-            uint32_t dlc_non_comp : 1; /**< Message's Data length code is larger than 8. This will break compliance with
-                                           ISO 11898-1 */
-            uint32_t reserved : 27;    /**< Reserved bits */
-        };
-
-        uint32_t flags{}; /**< Deprecated: Alternate way to set bits using message flags */
+        uint32_t ide : 1; /**< Extended Frame Format (29bit ID) */
+        uint32_t rtr : 1; /**< Message is a Remote Frame */
+        uint32_t fdf : 1; /**< Message is FD format, allow max 64 byte of data */
+        uint32_t brs : 1; /**< Transmit message with Bit Rate Shift. */
+        uint32_t esi : 1; /**< Transmit side error indicator for received frame */
     };
 
-    N_AI    identifier;                /**< 11 or 29 bit identifier */
-    uint8_t data_length_code{};        /**< Data length code */
+    union
+    {
+        uint64_t timestamp;    /**< Timestamp for received message */
+        uint64_t trigger_time; /**< Trigger time for transmitting message*/
+    };
+
     uint8_t data[CAN_FRAME_MAX_DLC]{}; /**< Data bytes (not relevant in RTR frame) */
 };
 
