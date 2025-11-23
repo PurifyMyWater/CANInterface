@@ -2,25 +2,25 @@
 #define CANInterface_h
 
 #include <cstdint>
+#include <variant>
 
 constexpr uint8_t  CAN_FRAME_MAX_DLC = 8;
 constexpr uint32_t MAX_N_AI_STR_SIZE = 72;
 // 72 = 40 (N_TAtype) + 3 (N_SA) + 3 (N_TA) + 25 (for the format string) + 1 (for the null terminator)
 constexpr uint32_t MAX_FRAME_STR_SIZE = 181;
 // 181 = 72 (N_AI) + 5 (flags) + 1 (data_length_code) + 17 (data) + 85 (format string) + 1 (null terminator)
+constexpr uint32_t MAX_TX_ERROR_FLAGS_STR_SIZE = 60; // 54 (format string) + 5 (flags) + 1 (null terminator)
 
-using N_TAtype_t = enum N_TAtype {
+using N_TAtype_t = enum N_TAtype_t {
     CAN_UNKNOWN                             = 0,
     N_TATYPE_5_CAN_CLASSIC_29bit_Physical   = 218,
     N_TATYPE_6_CAN_CLASSIC_29bit_Functional = 219
 };
 
-using ACKResult = enum ACKResult { ACK_SUCCESS, ACK_ERROR, ACK_NONE };
-
 constexpr uint8_t N_NFA_Header_Value  = 0b110;
 constexpr uint8_t N_NFA_Padding_Value = 0b00;
 
-using N_AI = union N_AI_union
+using N_AI = union N_AI
 {
     struct __attribute__((packed))
     {
@@ -55,6 +55,50 @@ using CANFrame = struct CANFrame
     uint8_t data[CAN_FRAME_MAX_DLC]{}; /**< Data bytes (not relevant in RTR frame) */
 };
 
+using CANErrorState = enum CANErrorState {
+    CAN_ERROR_ACTIVE,  /**< Error active state: TEC/REC < 96 */
+    CAN_ERROR_WARNING, /**< Error warning state: TEC/REC >= 96 and < 128 */
+    CAN_ERROR_PASSIVE, /**< Error passive state: TEC/REC >= 128 and < 256 */
+    CAN_ERROR_BUS_OFF, /**< Bus-off state: TEC >= 256 (node offline) */
+};
+
+using CANTXErrorFlags = union CANTXErrorFlags
+{
+    struct
+    {
+        uint32_t arb_lost : 1;  /**< Arbitration lost error (lost arbitration during transmission) */
+        uint32_t bit_err : 1;   /**< Bit error detected (dominant/recessive mismatch during transmission) */
+        uint32_t form_err : 1;  /**< Form error detected (frame fixed-form bit violation) */
+        uint32_t stuff_err : 1; /**< Stuff error detected (e.g. dominant error frame received) */
+        uint32_t ack_err : 1;   /**< ACK error (no ack), transmission without acknowledge received */
+    };
+    uint32_t val; /**< Integrated error flags */
+};
+
+using CANTXDoneEvent = struct CANTXDoneEvent
+{
+    CANTXErrorFlags errorFlags;
+    CANFrame        frame;
+};
+
+using CANRXDoneEvent = struct CANRXDoneEvent
+{
+    CANFrame frame;
+};
+
+using CANStateChangedEvent = struct CANStateChangedEvent
+{
+    CANErrorState oldState;
+    CANErrorState newState;
+};
+
+using CANNoEvent = struct CANNoEvent
+{
+    // Empty struct to represent no event
+};
+
+using CANEvent = std::variant<CANRXDoneEvent, CANTXDoneEvent, CANStateChangedEvent, CANNoEvent>;
+
 /**
  * @brief Convert N_TAtype to string.
  * @param nTAtype The N_TAtype to convert.
@@ -62,7 +106,7 @@ using CANFrame = struct CANFrame
  *
  * @note The output string is static and will be overwritten on the next call to this function.
  */
-const char* N_TAtypeToString(N_TAtype_t nTAtype);
+const char* toString(N_TAtype_t nTAtype);
 
 /**
  * @brief Convert N_AI to string.
@@ -71,7 +115,7 @@ const char* N_TAtypeToString(N_TAtype_t nTAtype);
  *
  * @note The output string is static and will be overwritten on the next call to this function.
  */
-const char* nAiToString(const N_AI& nAi);
+const char* toString(const N_AI& nAi);
 
 /**
  * @brief Convert frame data to string.
@@ -81,7 +125,7 @@ const char* nAiToString(const N_AI& nAi);
  *
  * @note The output string is static and will be overwritten on the next call to this function.
  */
-const char* frameDataToString(const uint8_t* data, uint8_t data_length_code);
+const char* toString(const uint8_t* data, uint8_t data_length_code);
 
 /**
  * @brief Convert CANFrame to string.
@@ -90,16 +134,70 @@ const char* frameDataToString(const uint8_t* data, uint8_t data_length_code);
  *
  * @note The output string is static and will be overwritten on the next call to this function.
  */
-const char* frameToString(const CANFrame& frame);
+const char* toString(const CANFrame& frame);
 
 /**
- * @brief Convert ACKResult to string.
- * @param ackResult The ACKResult to convert.
- * @return String representation of the ACKResult.
+ * @brief Convert CANTXErrorFlags to string.
+ * @param flags The CANTXErrorFlags to convert.
+ * @return String representation of the CANTXErrorFlags.
  *
  * @note The output string is static and will be overwritten on the next call to this function.
  */
-const char* ackResultToString(const ACKResult& ackResult);
+const char* toString(const CANTXErrorFlags& flags);
+
+/**
+ * @brief Convert CANErrorState to string.
+ * @param state The CANErrorState to convert.
+ * @return String representation of the CANErrorState.
+ *
+ * @note The output string is static and will be overwritten on the next call to this function.
+ */
+const char* toString(CANErrorState state);
+
+/**
+ * @brief Convert CANTXDoneEvent to string.
+ * @param event The CANTXDoneEvent to convert.
+ * @return String representation of the CANTXDoneEvent.
+ *
+ * @note The output string is static and will be overwritten on the next call to this function.
+ */
+const char* toString(const CANTXDoneEvent& event);
+
+/**
+ * @brief Convert CANRXDoneEvent to string.
+ * @param event The CANRXDoneEvent to convert.
+ * @return String representation of the CANRXDoneEvent.
+ *
+ * @note The output string is static and will be overwritten on the next call to this function.
+ */
+const char* toString(const CANRXDoneEvent& event);
+
+/**
+ * @brief Convert CANStateChangedEvent to string.
+ * @param event The CANStateChangedEvent to convert.
+ * @return String representation of the CANStateChangedEvent.
+ *
+ * @note The output string is static and will be overwritten on the next call to this function.
+ */
+const char* toString(const CANStateChangedEvent& event);
+
+/**
+ * @brief Convert CANNoEvent to string.
+ * @param event The CANNoEvent to convert.
+ * @return String representation of the CANNoEvent.
+ *
+ * @note The output string is static and will be overwritten on the next call to this function.
+ */
+const char* toString(const CANNoEvent& event);
+
+/**
+ * @brief Convert CANEvent to string.
+ * @param event The CANEvent to convert.
+ * @return String representation of the CANEvent.
+ *
+ * @note The output string is static and will be overwritten on the next call to this function.
+ */
+const char* toString(const CANEvent& event);
 
 /**
  * @brief Interface for a CAN bus driver.
@@ -108,37 +206,39 @@ class CANInterface
 {
 public:
     /**
-     * @brief Check if a frame is available to read.
-     * @return Number of frames available to read. or 0 if no frames are available, or the bus is not active.
+     * @brief Check and read the next event received from the CAN bus.
+     * @param maxTimeToWait_ms Maximum time to wait for an event in milliseconds.
+     * @return CANEvent The next CAN event.
+     * @note This function will block until an event is received or the timeout is reached.
      */
-    virtual uint32_t frameAvailable() = 0;
+    virtual CANEvent getEvent(uint32_t maxTimeToWait_ms) = 0;
 
     /**
-     * @brief Read a frame from the CAN bus.
-     * @param frame Pointer to a CANFrame struct to store the read frame.
-     * @return True if a frame was read, false if no frame was available, or the bus is not active.
+     * @brief Send a CAN frame on the bus.
+     * @param frame The CAN frame to send.
+     * @param maxTimeToWait_ms Maximum time to wait for the frame to put in the transmit queue if it is full. -1 to wait forever.
+     * @return true if the frame was put in queue successfully.
      */
-    virtual bool readFrame(CANFrame* frame) = 0;
+    virtual bool sendFrame(const CANFrame& frame, int32_t maxTimeToWait_ms) = 0;
 
     /**
-     * @brief Write a frame to the CAN bus.
-     * @param frame Pointer to a CANFrame struct to write to the bus.
-     * @return True if the frame was written, false if the bus is not active, or the frame was not written.
+     * @brief Start the CAN interface.
+     * @return true if the interface was started successfully.
      */
-    virtual bool writeFrame(CANFrame* frame) = 0;
+    virtual bool enable() = 0;
 
     /**
-     * @brief Check if the bus is active.
-     * @return True if the bus is active, false if the bus is not active.
+     * @brief Stop the CAN interface.
+     * @return true if the interface was stopped successfully.
      */
-    virtual bool active() = 0;
+    virtual bool disable() = 0;
 
     /**
-     * @brief Get the ACK result of the last message sent.
-     * @return The result of the last ACK or ACK_NONE if no message finished transmission since the last call to this
-     * function, or the bus is not active.
+     * @brief Start the bus off recovery procedure.
+     * @return true if the recovery procedure was started successfully.
+     * @note Follow the CANStateChangedEvent to monitor the recovery process.
      */
-    virtual ACKResult getWriteFrameACK() = 0;
+    virtual bool recoverFromBusOff() = 0;
 
     virtual ~CANInterface() = default;
 };
