@@ -39,16 +39,16 @@ using CANFrame = struct CANFrame
     uint16_t dlc; /**< message data length code */
     struct __attribute__((packed))
     {
-        uint32_t ide : 1; /**< Extended Frame Format (29bit ID) */
-        uint32_t rtr : 1; /**< Message is a Remote Frame */
-        uint32_t fdf : 1; /**< Message is FD format, allow max 64 byte of data */
-        uint32_t brs : 1; /**< Transmit message with Bit Rate Shift. */
-        uint32_t esi : 1; /**< Transmit side error indicator for received frame */
+        uint32_t ide : 1 {0}; /**< Extended Frame Format (29bit ID) */
+        uint32_t rtr : 1 {0}; /**< Message is a Remote Frame */
+        uint32_t fdf : 1 {0}; /**< Message is FD format, allow max 64 byte of data */
+        uint32_t brs : 1 {0}; /**< Transmit message with Bit Rate Shift. */
+        uint32_t esi : 1 {0}; /**< Transmit side error indicator for received frame */
     };
 
     union
     {
-        uint64_t timestamp;    /**< Timestamp for received message */
+        uint64_t timestamp{0}; /**< Timestamp for received message */
         uint64_t trigger_time; /**< Trigger time for transmitting message*/
     };
 
