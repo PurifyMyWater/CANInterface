@@ -208,7 +208,7 @@ public:
     /**
      * @brief Check and read the next event received from the CAN bus.
      * @param maxTimeToWait_ms Maximum time to wait for an event in milliseconds.
-     * @return CANEvent The next CAN event.
+     * @return CANEvent The next CAN event. CANNoEvent if no event was received within the timeout.
      * @note This function will block until an event is received or the timeout is reached.
      */
     virtual CANEvent getEvent(uint32_t maxTimeToWait_ms) = 0;
