@@ -216,7 +216,8 @@ public:
     /**
      * @brief Send a CAN frame on the bus.
      * @param frame The CAN frame to send.
-     * @param maxTimeToWait_ms Maximum time to wait for the frame to put in the transmit queue if it is full. -1 to wait forever.
+     * @param maxTimeToWait_ms Maximum time to wait for the frame to put in the transmit queue if it is full. -1 to wait
+     * forever.
      * @return true if the frame was put in queue successfully.
      */
     virtual bool sendFrame(const CANFrame& frame, int32_t maxTimeToWait_ms) = 0;
