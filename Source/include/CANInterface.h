@@ -20,7 +20,7 @@ using N_TAtype_t = enum N_TAtype_t {
 constexpr uint8_t N_NFA_Header_Value  = 0b110;
 constexpr uint8_t N_NFA_Padding_Value = 0b00;
 
-using N_AI = union N_AI
+using N_AI = union N_AI_union
 {
     struct __attribute__((packed))
     {
