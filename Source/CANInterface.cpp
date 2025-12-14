@@ -115,7 +115,7 @@ const char* toString(const CANStateChangedEvent& event)
     return buffer;
 }
 
-const char* toString(const CANNoEvent&)
+const char* toString(const std::monostate&)
 {
     return "{No Event}";
 }

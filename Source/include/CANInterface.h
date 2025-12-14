@@ -94,12 +94,7 @@ using CANStateChangedEvent = struct CANStateChangedEvent
     CANErrorState newState;
 };
 
-using CANNoEvent = struct CANNoEvent
-{
-    // Empty struct to represent no event
-};
-
-using CANEvent = std::variant<CANRXDoneEvent, CANTXDoneEvent, CANStateChangedEvent, CANNoEvent>;
+using CANEvent = std::variant<std::monostate, CANRXDoneEvent, CANTXDoneEvent, CANStateChangedEvent>;
 
 /**
  * @brief Convert N_TAtype to string.
@@ -190,7 +185,7 @@ const char* toString(const CANStateChangedEvent& event);
  *
  * @note The output string is static and will be overwritten on the next call to this function.
  */
-const char* toString(const CANNoEvent& event);
+const char* toString(const std::monostate& event);
 
 /**
  * @brief Convert CANEvent to string.
