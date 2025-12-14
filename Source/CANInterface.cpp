@@ -93,25 +93,27 @@ const char* toString(CANErrorState state)
 const char* toString(const CANTXDoneEvent& event)
 {
     static char buffer[MAX_FRAME_STR_SIZE + MAX_TX_ERROR_FLAGS_STR_SIZE +
-                       22]; // 21 = length of format string + 1 null terminator
+                       36]; // 35 = length of format string + 1 null terminator
 
-    snprintf(buffer, sizeof(buffer), "{errorFlags=%s, frame=%s}", toString(event.errorFlags), toString(event.frame));
+    snprintf(buffer, sizeof(buffer), "CANTXDoneEvent{errorFlags=%s, frame=%s}", toString(event.errorFlags),
+             toString(event.frame));
     return buffer;
 }
 
 const char* toString(const CANRXDoneEvent& event)
 {
-    static char buffer[MAX_FRAME_STR_SIZE + 9]; // 8 = length of format string + 1 null terminator
+    static char buffer[MAX_FRAME_STR_SIZE + 23]; // 22 = length of format string + 1 null terminator
 
-    snprintf(buffer, sizeof(buffer), "{frame=%s}", toString(event.frame));
+    snprintf(buffer, sizeof(buffer), "CANRXDoneEvent{frame=%s}", toString(event.frame));
     return buffer;
 }
 
 const char* toString(const CANStateChangedEvent& event)
 {
     static char
-        buffer[(2 * sizeof("UNKNOWN_CAN_ERROR_STATE")) + 23]; // 22 = length of format string + 1 null terminator
-    snprintf(buffer, sizeof(buffer), "{oldState=%s, newState=%s}", toString(event.oldState), toString(event.newState));
+        buffer[(2 * sizeof("UNKNOWN_CAN_ERROR_STATE")) + 43]; // 42 = length of format string + 1 null terminator
+    snprintf(buffer, sizeof(buffer), "CANStateChangedEvent{oldState=%s, newState=%s}", toString(event.oldState),
+             toString(event.newState));
     return buffer;
 }
 
