@@ -85,7 +85,7 @@ using CANTXDoneEvent = struct CANTXDoneEvent
 using CANRXDoneEvent = struct CANRXDoneEvent
 {
     CANFrame frame;
-    int32_t  driverErrorCode{0}; // Field to hold driver-specific error codes. 0 means no error.
+    int32_t  driverErrorCode{0}; /// Field to hold driver-specific error codes. 0 means no error.
 };
 
 using CANStateChangedEvent = struct CANStateChangedEvent
@@ -94,6 +94,15 @@ using CANStateChangedEvent = struct CANStateChangedEvent
     CANErrorState newState;
 };
 
+/**
+ * @brief Type representing a CAN event.
+ *
+ * This can be one of the following types:
+ * - std::monostate: Represents no event.
+ * - CANRXDoneEvent: Represents a received CAN frame event.
+ * - CANTXDoneEvent: Represents a transmitted CAN frame event.
+ * - CANStateChangedEvent: Represents a change in the CAN bus state.
+ */
 using CANEvent = std::variant<std::monostate, CANRXDoneEvent, CANTXDoneEvent, CANStateChangedEvent>;
 
 /**
