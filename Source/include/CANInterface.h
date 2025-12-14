@@ -66,11 +66,12 @@ using CANTXErrorFlags = union CANTXErrorFlags
 {
     struct
     {
-        uint32_t arb_lost : 1 {0};  /**< Arbitration lost error (lost arbitration during transmission) */
-        uint32_t bit_err : 1 {0};   /**< Bit error detected (dominant/recessive mismatch during transmission) */
-        uint32_t form_err : 1 {0};  /**< Form error detected (frame fixed-form bit violation) */
-        uint32_t stuff_err : 1 {0}; /**< Stuff error detected (e.g. dominant error frame received) */
-        uint32_t ack_err : 1 {0};   /**< ACK error (no ack), transmission without acknowledge received */
+        uint32_t arb_lost : 1 {0};      /**< Arbitration lost error (lost arbitration during transmission) */
+        uint32_t bit_err : 1 {0};       /**< Bit error detected (dominant/recessive mismatch during transmission) */
+        uint32_t form_err : 1 {0};      /**< Form error detected (frame fixed-form bit violation) */
+        uint32_t stuff_err : 1 {0};     /**< Stuff error detected (e.g. dominant error frame received) */
+        uint32_t ack_err : 1 {0};       /**< ACK error (no ack), transmission without acknowledge received */
+        uint32_t is_tx_success : 1 {0}; /**< Indicate if frame send was successful */
     };
     uint32_t val; /**< Integrated error flags */
 };
