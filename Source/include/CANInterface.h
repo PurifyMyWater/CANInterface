@@ -85,6 +85,7 @@ using CANTXDoneEvent = struct CANTXDoneEvent
 using CANRXDoneEvent = struct CANRXDoneEvent
 {
     CANFrame frame;
+    int32_t  driverErrorCode{0}; // Field to hold driver-specific error codes. 0 means no error.
 };
 
 using CANStateChangedEvent = struct CANStateChangedEvent
