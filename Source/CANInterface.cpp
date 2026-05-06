@@ -64,11 +64,11 @@ const char* toString(const CANFrame& frame)
 
 const char* toString(const CANTXErrorFlags& flags)
 {
-    static char buffer[MAX_TX_ERROR_FLAGS_STR_SIZE]; // 54 (format string) + 5 (flags) + 1 (null terminator)
+    static char buffer[MAX_TX_ERROR_FLAGS_STR_SIZE]; // 70 (format string) + 6 (flags) + 1 (null terminator)
 
     snprintf(buffer, sizeof(buffer),
-             "{arb_lost=%" PRIu8 ", bit_err=%" PRIu8 ", form_err=%" PRIu8 ", stuff_err=%" PRIu8 ", ack_err=%" PRIu8 "}",
-             flags.arb_lost, flags.bit_err, flags.form_err, flags.stuff_err, flags.ack_err);
+             "{is_tx_success=%" PRIu8 ", arb_lost=%" PRIu8  ", bit_err=%" PRIu8 ", form_err=%" PRIu8 ", stuff_err=%" PRIu8 ", ack_err=%" PRIu8 "}",
+             flags.is_tx_success, flags.arb_lost, flags.bit_err, flags.form_err, flags.stuff_err, flags.ack_err);
 
     return buffer;
 }

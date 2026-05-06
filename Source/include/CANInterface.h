@@ -9,7 +9,7 @@ constexpr uint32_t MAX_N_AI_STR_SIZE = 72;
 // 72 = 40 (N_TAtype) + 3 (N_SA) + 3 (N_TA) + 25 (for the format string) + 1 (for the null terminator)
 constexpr uint32_t MAX_FRAME_STR_SIZE = 170;
 // 181 = 72 (N_AI) + 5 (flags) + 1 (data_length_code) + 17 (data) + 74 (format string) + 1 (null terminator)
-constexpr uint32_t MAX_TX_ERROR_FLAGS_STR_SIZE = 60; // 54 (format string) + 5 (flags) + 1 (null terminator)
+constexpr uint32_t MAX_TX_ERROR_FLAGS_STR_SIZE = 77; // 70 (format string) + 6 (flags) + 1 (null terminator)
 
 using N_TAtype_t = enum N_TAtype_t {
     CAN_UNKNOWN                             = 0,
